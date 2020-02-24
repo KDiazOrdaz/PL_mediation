@@ -1,4 +1,5 @@
 # PL_mediation
  Robust Inference of Mediation Effects in Partially Linear Models
  
-This is a line from RStudio
+ Code for simulation and data illustration of novel G-estimation methods for inference of the natural (in)direct effect
+ 
