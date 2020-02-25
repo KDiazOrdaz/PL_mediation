@@ -3,7 +3,7 @@ require(parallel)
 ####### Run the Simulation for Bias_variance plots ######
 
 
-N.reps = 2
+N.reps = 1000
 abc_list<- list(c(1,1,1),c(0,0,0))
 N_vals = as.list(c(100,500,1000))
 fns_list = list('gd_bin','gd_bin_M','gd_bin_XY','gd_bin_Y','gd_bin_MX')
@@ -44,12 +44,14 @@ results_summary = aggregate(cbind(beta1,beta2,beta3,nide,var1.hat,var2.hat,var3.
 results_summary2 = aggregate(cbind(beta1,beta2,beta3,nide,var1.hat,var2.hat,var3.hat,var4.hat,
                                   var1.boot,var2.boot,var3.boot,var4.boot) ~ N + a + b + c + gdata,
                             data=results_full,FUN=function(set){
-                              var(set)
+                              sd(set)/sqrt(N.reps)
                             })
+
+
 ## Save the data
-write.table(results_full,file='run_bv_1.txt')
-write.table(results_summary,file='run_bv_1_mean_sum.txt')
-write.table(results_summary,file='run_bv_1_var_sum.txt')
+write.table(results_full,file='Sim_data/run_bv_1.txt')
+write.table(results_summary ,file='Sim_data/run_bv_1_mean_sum.txt')
+write.table(results_summary2,file='Sim_data/run_bv_1_sd_sum.txt')
   
 
 
