@@ -13,18 +13,23 @@ bv_df <- merge(read.table('Sim_data/run_bv_1_mean_sum.txt'),
 
 
 #### Create data frame of biases ####
+fns = list("gd_bin","gd_bin_M","gd_bin_MX","gd_bin_XY","gd_bin_Y" )
+params = sapply(1:4,function(i)paste0('beta',i))
+N.reps=1000
+
 
 bias_plot_df = bv_df[1:5]
 
-bias_plot_df [,sapply(1:4,function(i)paste0('bias',i))] <- 
+bias_plot_df [,sapply(1:4,function(i)paste0('beta',i))] <- 
   bv_df[,c('beta1.MCmean','beta2.MCmean','beta3.MCmean','nide.MCmean')] -
   cbind(bv_df[,c('a','b','c')],bv_df$a*bv_df$b)
 
-bias_plot_df [,sapply(1:4,function(i)paste0('bias',i,'.sd'))] <- 
+bias_plot_df [,sapply(1:4,function(i)paste0('beta',i,'.sd'))] <- 
   bv_df[,c('beta1.MCsd','beta2.MCsd','beta3.MCsd','nide.MCsd')] #see[1]
 
 biases = melt(bias_plot_df,c('N','a','b','c','gdata'),value.name = 'bias.sd',
               measure.vars = sapply(params,paste0,'.sd') ,variable.name = 'param')
+
 biases$param <- gsub(".sd","",biases$param)
 
 biases = merge(biases,melt(bias_plot_df,c('N','a','b','c','gdata'),value.name = 'bias',
@@ -44,9 +49,6 @@ biases = valids(biases)
 
 #### Bias plot ####
 
-fns = list("gd_bin","gd_bin_M","gd_bin_MX","gd_bin_XY","gd_bin_Y" )
-params = sapply(1:4,function(i)paste0('beta',i))
-
 
 bias_plot <- function(df){
   scale = qnorm(0.975) #95% confidence interval
@@ -65,18 +67,19 @@ bias_plot <- function(df){
   
   #Make plot
   p=ggplot(data=df,aes(x=param,y=bias,ymin=bias-scale*bias.sd,ymax=bias+scale*bias.sd,color=param))+
-    geom_pointrange(aes(col=param),show.legend = TRUE)+
-    geom_errorbar(aes(ymin=bias-scale*bias.sd,ymax=bias+scale*bias.sd,col=param),width=0.5,cex=1,show.legend = TRUE)+
+    geom_pointrange(aes(col=param),show.legend = TRUE,shape=5,size=0.1)+
+    geom_errorbar(aes(ymin=bias-scale*bias.sd,ymax=bias+scale*bias.sd,col=param),width=0.2,cex=0.5,show.legend = TRUE)+
     geom_hline(aes(yintercept =0))+
     xlab('')+
     ylab('Bias')+
     #facet_wrap(~Group,strip.position="left",nrow=6,scales = "free_y") +
     facet_grid(Group~gdata,switch='y')+
+    theme_bw()+
     theme(plot.title=element_text(size=16,face="bold"),
           axis.text.y=element_blank(),
           axis.ticks.y=element_blank(),
-          axis.text.x=element_text(face="bold"),
-          axis.title=element_text(size=12,face="bold"),
+          #axis.text.x=element_text(face="bold"),
+          #axis.title=element_text(size=12,face="bold"),
           strip.text.y = element_text(hjust=0,vjust = 1,angle=180,face="bold") ,
           strip.text.x = element_text(margin = margin(2, 0, 2, 0))
     )+coord_flip()
@@ -163,25 +166,26 @@ variance_plot <- function(df,par){ #take par as an asgument to create different 
   
   #Make plot
   p=ggplot(data=df,aes(x=Method,y=Var,ymin=Var-scale*Var.sd,ymax=Var+scale*Var.sd,color=Method))+
-    geom_pointrange(aes(col=Method),show.legend = TRUE)+
-    geom_errorbar(aes(ymin=Var-scale*Var.sd,ymax=Var+scale*Var.sd,color=Method),width=0.5,cex=1,show.legend = TRUE)+
+    geom_pointrange(aes(col=Method),show.legend = TRUE,shape=5,size=0.1)+
+    geom_errorbar(aes(ymin=Var-scale*Var.sd,ymax=Var+scale*Var.sd,color=Method),width=0.2,cex=0.5,show.legend = TRUE)+
     #geom_hline(aes(yintercept =1))+
     xlab('')+
     ylab(TeX(paste0('Variance of ',lat_name)))+
     #facet_wrap(~Group,strip.position="left",nrow=6,scales = "free_y") +
     facet_grid(Group~gdata,switch='y')+
+    theme_bw()+
     theme(plot.title=element_text(size=16,face="bold"),
           axis.text.y=element_blank(),
           axis.ticks.y=element_blank(),
-          axis.text.x=element_text(face="bold"),
-          axis.title=element_text(size=12,face="bold"),
+          #axis.text.x=element_text(face="bold"),
+          #axis.title=element_text(size=12,face="bold"),
           strip.text.y = element_text(hjust=0,vjust = 1,angle=180,face="bold") ,
           strip.text.x = element_text(margin = margin(2, 0, 2, 0))
     )+coord_flip()
   return(p)
 }
 
-
+variance_plot(variances,'beta1')
 
 
 sapply(params,function(par){ #saveplots
